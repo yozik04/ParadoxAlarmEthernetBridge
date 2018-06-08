@@ -1,10 +1,21 @@
 # Paradox Alarm Event Bridge
 
-This project is a source code for Arduino Nano with ENC28J60 Ethernet Module. It receives Paradox Alarm 37 byte telegrams via Serial Port, verifies them and passes to a handler. 
+This project is a source code for Arduino Nano with ENC28J60 Ethernet Module. It receives Paradox Alarm 37 byte telegrams via Serial Port, verifies them and passes to a handler.
 
 Code is verified to work with Paradox EVO192 alarm board. It might also work with other boards as well.
 
+You need to enable Live Event transmission on your Paradox Alarm. Setting on EVO192: [3035] - bit 7.
+
+Baud rate of the Serial port can also be switched between 38400 and 57600: [3035] - bit 8, make sure it matches with *PARADOX_SERIAL_SPEED* environment variable.
+
+# Motivation
+
+As Paradox's own IP150 (Ver 4.x +) module is real sh*t and you cannot do anything useful for your smart house with that, I had to create something that does job better.
+
+Maybe some day someone will find a way how to downgrade IP150 firmware to below 4.x, then it will be possible to work with IP150 through a service port.
+
 ## Paradox telegram
+
 ```cpp
   struct ParadoxPacket { //37 byte
        byte armstatus;       //00
@@ -29,9 +40,12 @@ Code is verified to work with Paradox EVO192 alarm board. It might also work wit
 ```
 
 # Telegram handlers
+
 There are multiple handlers available:
+
 - **UDP handler:** Transmits paradox packet to a UDP HOST:PORT. See [server.py](/examples/server.py) for a receiving part.
 - **MQTT handler:** Not yet fully implemented. Feel free to help here.
+- **Pushover support:** Not implemented. Maybe some day.
 
 # Board
 The bridge board is ment to be powered directly from the Alarm board via LM2596 Step-Down module. It will take power, ground and Tx/Rx from there.
@@ -56,11 +70,14 @@ The bridge board is ment to be powered directly from the Alarm board via LM2596 
 │ AUX+ └╷
 └───────┘
 ```
+
 You will need [this](https://www.ebay.com/itm/40-Sets-2-3-4-5P-2-54mm-Pitch-Terminal-Housing-Pin-Header-Connector-Adaptor-Kit/263446969764?ssPageName=STRK%3AMEBIDX%3AIT&_trksid=p2057872.m2749.l2649) connector to plug the bridge to the alarm board's serial port.
 
 # Additional features
+
 ## Water leak detector
-Rquires **RF 433Mhz Receiver**
+
+Requires **RF 433Mhz Receiver**
 
 I also use Wireless water leak detectors to trigger an alarm when a leak is detected. These are wireless sensors that transmit its unique ID via 433Mhz signal. Receiver on the board receives the signal for Arduino to decode and act accordingly.
 
@@ -69,6 +86,7 @@ Wireless leak detectors can be bought on [eBay](https://www.ebay.com/itm/433MHz-
 **WARNING!:** You must use **Hardware Serial** on Arduino board. RF Module uses interrupt to register RF transmissions. This influences Software Serial. With Software serial you will get corrupted payloads from the Alarm.
 
 # Building
+
 For building the project you will need [Platformio](http://docs.platformio.org/en/latest/installation.html).
 
 Copy `platformio.ini.dist` to `platformio.ini` and configure for your requirements.
@@ -82,7 +100,9 @@ To deploy: `$ platformio run --target upload`
 Also please see Platformio's [Quick start guide](http://docs.platformio.org/en/latest/quickstart.html)
 
 ## Configuring
+
 In `platformio.ini`
+
 ```ini
 build_flags =
 ; Software or Hardware serial. You can use Software serial to debug.
@@ -105,8 +125,11 @@ build_flags =
 ;5 - Notice, 6 - Info, 7 - Debug
 ;   -D VERBOSE_LEVEL=7 for debug
 ```
+
 ### Water leak detector ids:
+
 Edit in `/src/rc_alarm.cpp`
+
 ```cpp
 RCOutputPin rc_out_pins[] = {
   //{pin, state, last_trigger_time}
@@ -122,11 +145,13 @@ RValueToPin rc_sensors[] = {
 ```
 
 # LICENSE
+
 [GNU General Public License v3.0](/LICENSE.md)
 
 # TODO
 
 - [ ] Finish MQTT support
+- [ ] Pushover support for Alarm events
 - [ ] Support write to Alarms's serial to Arm/Disarm
 - [ ] Use preprocessor to fill rc_sensors array in rc_alarm.cpp
 - [x] Support 433Mhz buttons (For water leak detectors)
