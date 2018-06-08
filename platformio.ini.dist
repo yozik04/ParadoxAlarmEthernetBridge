@@ -1,0 +1,36 @@
+; PlatformIO Project Configuration File
+;
+;   Build options: build flags, source filter
+;   Upload options: custom upload port, speed and extra flags
+;   Library options: dependencies, extra library storages
+;   Advanced options: extra scripting
+;
+; Please visit documentation for the other options and examples
+; http://docs.platformio.org/page/projectconf.html
+
+[env:nanoatmega328]
+platform = atmelavr
+board = nanoatmega328
+framework = arduino
+
+lib_deps =
+   UIPEthernet@~2.0.6
+   RF24Mesh@~1.0.4
+;   rc-switch@~2.6.2
+;   PubSubClient@~2.6
+
+build_flags =
+   -D USE_SOFTWARE_SERIAL=0
+   -D UDP_HANDLER=1
+   -D UDP_HANDLER_HOST_IP=192,168,1,2
+;   -D MQTT_HANDLER=1
+;   -D MQTT_HANDLER_HOST_IP=192,168,1,2
+;   -D RC_ALARM=1
+   -D IP_ADDRESS=192,168,1,100
+   -D GATEWAY=192,168,1,1
+   -D DEBUG=1
+   -D SYSLOG_IP=192,168,1,2
+   -D VERBOSE_LEVEL=5
+;5 - Notice, 6 - Info, 7 - Debug
+;   -D VERBOSE_LEVEL=7 for debug
+
